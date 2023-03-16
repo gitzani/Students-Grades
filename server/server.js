@@ -27,17 +27,16 @@ app.get('/api/v1/students', cors(), (req, res) => {
 });
 
 app.post('/api/v1/students', cors(), (req, res) => {
-  const { name, program, grade } = req.body;
-  const newStudent = {
-    id: uuidv4(),
-    name,
-    program,
-    grade,
-  };
-  console.log(students);
-  students.push(newStudent);
-  res.json(newStudent);
-  fs.writeFileSync(dataPath, JSON.stringify(students));
+  const { name, program, grade, id } = req.body;
+
+  if (id) {
+    return res.status(400).json({ message: 'Use update to update student' });
+  } else {
+    const newStudent = { id: uuidv4(), name, program, grade };
+    students.push(newStudent);
+    fs.writeFileSync(dataPath, JSON.stringify(students));
+    return res.json(newStudent);
+  }
 });
 
 app.delete('/api/v1/students/:id', cors(), (req, res) => {

@@ -8,6 +8,13 @@ function App() {
   const [selectedStudentGrade, setSelectedStudentGrade] = useState("");
   const [selectedStudentProgram, setSelectedStudentProgram] = useState("");
 
+  const clearFormFields = () => {
+    setSelectedStudentName("");
+    setSelectedStudentProgram("");
+    setSelectedStudentGrade("");
+    setSelectedStudentId(null);
+  };
+
   const formRef = useRef();
 
   const fetchData = async () => {
@@ -25,22 +32,25 @@ function App() {
 
   const addStudent = async (e) => {
     e.preventDefault();
-
+    const id = selectedStudentId
     const name = formRef.current.elements.name.value;
     const program = formRef.current.elements.program.value;
     const grade = formRef.current.elements.grade.value;
 
     const newStudent = {
+      id,
       name,
       program,
       grade,
     };
+    clearFormFields();
     try {
       const response = await axios.post(
         "http://localhost:8080/api/v1/students",
         newStudent
       );
       setStudents([...students, response.data]);
+      clearFormFields(); // Call the clearFormFields() function to reset the form fields
       formRef.current.reset();
     } catch (error) {
       console.log(error);
@@ -81,6 +91,8 @@ function App() {
       });
       setStudents(newStudents);
       setSelectedStudentId(null); // Reset selected student ID
+      clearFormFields(); // Call the clearFormFields() function to reset the form fields
+      formRef.current.reset();
     } catch (error) {
       console.log(error);
     }
@@ -93,7 +105,9 @@ function App() {
       );
 
       setStudents(students.filter((student) => student.id !== id));
-      // setSelectedStudentId(null); // Reset selected student ID
+      // FEATURE let the forms keep the selected student ID so if by mistake it can be reposted
+      // clearFormFields(); // Call the clearFormFields() function to reset the form fields
+      // formRef.current.reset();
     } catch (error) {
       console.log(error);
     }
@@ -169,15 +183,17 @@ function App() {
                 Update
               </button>
             )}{" "}
-                <button
-            className="btn btn-primary-update"
-            onClick={(e) => {
-              e.preventDefault(); // Prevent form submission
-              deleteStudent(selectedStudentId);
-            }}
-          >
-            Delete
-          </button>
+            {selectedStudentId && (
+              <button
+                className="btn btn-primary-update"
+                onClick={(e) => {
+                  e.preventDefault(); // Prevent form submission
+                  deleteStudent(selectedStudentId);
+                }}
+              >
+                Delete
+              </button>
+            )}{" "}
           </form>
         </div>
       </div>
